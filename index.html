@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriFrutas - Información Nutricional de Frutas | Fruityvice API</title>
+  <meta name="description"
+    content="Explora, compara y calcula los valores nutricionales, calorías, azúcares y macronutrientes de frutas con datos oficiales de la API de Fruityvice.">
+  <meta name="theme-color" content="#10b981">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍓</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Encabezado Principal -->
+    <header class="app-header">
+      <div class="brand-wrapper">
+        <div class="brand-icon" aria-hidden="true">🥑</div>
+        <div>
+          <h1 class="brand-title">NutriFrutas Pro</h1>
+          <p class="brand-tagline">Visualizador Nutricional Inteligente & Comparador de Frutas</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <span id="api-status-badge" class="status-badge status-live">
+          Conectando API...
+        </span>
+        <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" aria-label="Cambiar tema">
+          🌙 Modo Oscuro
+        </button>
+      </div>
+    </header>
+
+    <!-- Banner Superior de Estadísticas -->
+    <section class="stats-banner" aria-label="Estadísticas generales">
+      <div class="stat-card">
+        <div class="stat-icon" aria-hidden="true">🍇</div>
+        <div class="stat-info">
+          <span class="stat-label" title="Frutas Registradas">Frutas Registradas</span>
+          <span id="stat-fruit-count" class="stat-value">--</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" aria-hidden="true">🌱</div>
+        <div class="stat-info">
+          <span class="stat-label" title="Más Ligera en Calorías">Más Ligera en Calorías</span>
+          <span id="stat-lightest-fruit" class="stat-value">Cargando...</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" aria-hidden="true">🍯</div>
+        <div class="stat-info">
+          <span class="stat-label" title="Mayor Dulzor Natural">Mayor Dulzor Natural</span>
+          <span id="stat-sweetest-fruit" class="stat-value">Cargando...</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" aria-hidden="true">💪</div>
+        <div class="stat-info">
+          <span class="stat-label" title="Líder en Proteínas">Líder en Proteínas</span>
+          <span id="stat-protein-fruit" class="stat-value">Cargando...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pestañas de Navegación -->
+    <nav class="nav-tabs-container" aria-label="Vistas principales">
+      <button class="nav-tab-btn active" data-tab="explorer" id="tab-btn-explorer">
+        <span aria-hidden="true">🔎</span> Explorador de Frutas
+      </button>
+      <button class="nav-tab-btn" data-tab="compare" id="tab-btn-compare">
+        <span aria-hidden="true">⚖️</span> Comparador Nutricional (Versus)
+      </button>
+      <button class="nav-tab-btn" data-tab="calculator" id="tab-btn-calculator">
+        <span aria-hidden="true">🥣</span> Calculadora de Batidos y Ensaladas
+      </button>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="app-main-content">
+
+      <!-- ==========================================
+           PESTAÑA 1: EXPLORADOR DE FRUTAS
+           ========================================== -->
+      <section id="tab-pane-explorer" class="tab-content-pane active">
+        <!-- Barra de Herramientas de Filtros -->
+        <div class="filter-toolbar-section">
+          <div class="search-and-selectors">
+            <div class="search-input-wrapper">
+              <span class="search-icon" aria-hidden="true">🔍</span>
+              <input type="text" id="search-input" class="search-input"
+                placeholder="Buscar por nombre en español (ej. Fresa, Manzana) o en inglés..."
+                aria-label="Buscar fruta" />
+              <button id="clear-search-btn" class="clear-search-btn" aria-label="Limpiar búsqueda">✕</button>
+            </div>
+
+            <select id="filter-family" class="filter-select" aria-label="Filtrar por familia botánica">
+              <option value="all">Todas las familias botánicas</option>
+            </select>
+
+            <select id="sort-by-select" class="filter-select" aria-label="Ordenar resultados">
+              <option value="name_asc">Nombre: A → Z</option>
+              <option value="name_desc">Nombre: Z → A</option>
+              <option value="calories_asc">Menos Calorías</option>
+              <option value="calories_desc">Más Calorías</option>
+              <option value="sugar_asc">Menos Azúcar</option>
+              <option value="sugar_desc">Más Azúcar</option>
+              <option value="protein_desc">Mayor Proteína</option>
+              <option value="carbs_desc">Más Carbohidratos</option>
+            </select>
+          </div>
+
+          <!-- Filtros Rápidos (Chips) -->
+          <div class="quick-chips-wrapper">
+            <span class="chips-label">Filtros Nutricionales:</span>
+            <button class="filter-chip active" data-filter="all">Todas</button>
+            <button class="filter-chip" data-filter="low_calorie">🔥 Bajas en Calorías (&lt;50 kcal)</button>
+            <button class="filter-chip" data-filter="low_sugar">🚫 Bajas en Azúcar (&lt;7g)</button>
+            <button class="filter-chip" data-filter="high_protein">💪 Ricas en Proteína</button>
+            <button class="filter-chip" data-filter="high_carb">⚡ Energéticas (&gt;15g carbs)</button>
+            <button class="filter-chip" data-filter="keto_friendly">🥑 Keto-Friendly</button>
+          </div>
+        </div>
+
+        <!-- Meta barra de conteo -->
+        <div class="results-meta-bar">
+          <span id="results-count-label">Cargando catálogo...</span>
+          <span>Valores estandarizados por cada 100g de fruta cruda</span>
+        </div>
+
+        <!-- Indicador de carga -->
+        <div id="loading-indicator" class="loading-container">
+          <div class="spinner"></div>
+          <p>Consultando base de datos nutricional de Fruityvice...</p>
+        </div>
+
+        <!-- Cuadrícula de Frutas -->
+        <div id="fruits-grid" class="fruits-grid"></div>
+      </section>
+
+      <!-- ==========================================
+           PESTAÑA 2: COMPARADOR (VERSUS)
+           ========================================== -->
+      <section id="tab-pane-compare" class="tab-content-pane">
+        <div class="compare-selector-bar">
+          <div class="compare-dropdown-group">
+            <label for="compare-select-a">Primera Fruta:</label>
+            <select id="compare-select-a" class="filter-select"></select>
+          </div>
+
+          <button id="compare-swap-btn" class="compare-swap-btn" title="Intercambiar frutas" aria-label="Intercambiar">
+            ⇄
+          </button>
+
+          <div class="compare-dropdown-group">
+            <label for="compare-select-b">Segunda Fruta:</label>
+            <select id="compare-select-b" class="filter-select"></select>
+          </div>
+        </div>
+
+        <!-- Resultados de la Comparación -->
+        <div id="compare-results-container"></div>
+      </section>
+
+      <!-- ==========================================
+           PESTAÑA 3: CALCULADORA DE BOWL / SMOOTHIE
+           ========================================== -->
+      <section id="tab-pane-calculator" class="tab-content-pane">
+        <div class="calc-planner-layout">
+          <!-- Columna Izquierda: Agregar frutas y lista de ingredientes -->
+          <div class="calc-left-col">
+            <div class="calc-controls-card">
+              <div class="calc-header-row">
+                <h3>Mi Tazón / Batido</h3>
+                <span id="calc-items-count" class="status-badge status-local">0 frutas</span>
+              </div>
+
+              <!-- Presets deliciosos -->
+              <div style="margin-bottom: 16px;">
+                <label for="calc-preset-select"
+                  style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+                  ✨ Recetas y Combinaciones Sugeridas:
+                </label>
+                <select id="calc-preset-select" class="filter-select" style="width: 100%;">
+                  <option value="">-- Cargar una combinación predefinida --</option>
+                  <option value="energy">⚡ Batido Pre-Entreno Energético (Plátano + Mango + Fresa)</option>
+                  <option value="antioxidant">🫐 Tazón Detox Antioxidante (Arándanos + Moras + Frambuesas + Cereza)
+                  </option>
+                  <option value="slimming">🍉 Mix Ultra-Hidratante Ligero (Sandía + Melón + Fresa)</option>
+                  <option value="tropical">🍍 Explosión Tropical (Piña + Papaya + Pitahaya)</option>
+                </select>
+              </div>
+
+              <!-- Formulario de adición manual -->
+              <div class="calc-add-form">
+                <select id="calc-add-select" class="filter-select" aria-label="Seleccionar fruta"></select>
+                <div class="grams-input-wrap">
+                  <input type="number" id="calc-add-grams" class="grams-spinner" value="100" min="10" max="1000"
+                    step="10" />
+                  <span class="unit-tag">g</span>
+                </div>
+                <button id="calc-add-btn" class="btn btn-primary btn-sm">
+                  + Agregar
+                </button>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 14px;">
+                <button id="calc-copy-btn" class="btn btn-secondary btn-sm" title="Copiar resumen nutricional">
+                  📋 Copiar Receta
+                </button>
+                <button id="calc-clear-btn" class="btn btn-secondary btn-sm" title="Vaciar tazón">
+                  🗑️ Vaciar
+                </button>
+              </div>
+
+              <!-- Lista de Ingredientes en el Tazón -->
+              <div id="calc-items-list" class="calc-items-list"></div>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Totales y desglose de macronutrientes -->
+          <div class="calc-right-col">
+            <div id="calc-totals-display"></div>
+            <div id="calc-donut-display"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Modal Detalle Nutricional Pro -->
+    <div id="fruit-detail-modal" class="modal-overlay" aria-hidden="true" role="dialog">
+      <div class="modal-container">
+        <button id="modal-close-btn" class="modal-close-btn" aria-label="Cerrar modal">✕</button>
+        <div id="modal-fruit-content"></div>
+      </div>
+    </div>
+
+    <!-- Pie de Página -->
+    <footer class="app-footer">
+      <p>
+        <strong>NutriFrutas Pro</strong> · Desarrollado con base en la API pública de
+        <a href="https://www.fruityvice.com" target="_blank" rel="noopener noreferrer">Fruityvice</a>
+      </p>
+      <div class="footer-links">
+        <span>Datos por cada 100g de fruta cruda</span>
+        <span>•</span>
+        <span>Modo Bilingüe (Español / English)</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Scripts Modulares -->
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
